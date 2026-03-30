@@ -120,7 +120,7 @@ const App: React.FC = () => {
         
         {/* Header */}
         <div className="bg-primary-red text-white p-6 border-b-[5px] border-dark-red text-center">
-          <h1 className="font-black text-3xl uppercase leading-tight mb-1">Encceja 2024</h1>
+          <h1 className="font-black text-3xl uppercase leading-tight mb-1">Encceja 2026</h1>
           <p className="text-sm font-normal opacity-90">Valide sua inscrição e concorra!</p>
         </div>
 
@@ -180,7 +180,7 @@ const App: React.FC = () => {
                   disabled={!file || isFormSubmitting}
                   className="w-full bg-primary-red text-white border-none py-4 text-lg font-black uppercase rounded-full cursor-pointer mt-4 shadow-lg hover:bg-dark-red hover:-translate-y-1 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed disabled:shadow-none disabled:transform-none"
                 >
-                  {isFormSubmitting ? 'Analisando...' : 'Analisar e Concorrer'}
+                  {isFormSubmitting ? 'Analisando...' : 'Validar Inscrição'}
                 </button>
               </form>
             </div>
