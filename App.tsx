@@ -121,7 +121,7 @@ const App: React.FC = () => {
         {/* Header */}
         <div className="bg-primary-red text-white p-6 border-b-[5px] border-dark-red text-center">
           <h1 className="font-black text-3xl uppercase leading-tight mb-1">Encceja 2026</h1>
-          <p className="text-sm font-normal opacity-90">Valide sua inscrição e concorra!</p>
+          <p className="text-sm font-normal opacity-90">Valide sua inscrição!</p>
         </div>
 
         {/* Content */}
@@ -215,7 +215,7 @@ const App: React.FC = () => {
               </p>
 
               <p className="text-gray-600 text-base mb-8 leading-relaxed max-w-sm mx-auto">
-                Para participar do sorteio dos prêmios, envie o vídeo com sua história e reação para este número:
+                Caso tenha alguma dúvida, entre em contato pelo WhatsApp:
               </p>
               
               <a 
