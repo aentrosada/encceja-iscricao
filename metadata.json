@@ -1,0 +1,5 @@
+{
+  "name": "Encceja - Validação de Inscrição",
+  "description": "Aplicativo para envio e análise automática de comprovantes de inscrição do Encceja usando IA.",
+  "requestFramePermissions": []
+}
