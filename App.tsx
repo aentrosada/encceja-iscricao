@@ -13,6 +13,8 @@ const App: React.FC = () => {
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
   const [isSending, setIsSending] = useState(false);
   
+  // Controle dos modais
+  const [showInitialModal, setShowInitialModal] = useState(true); // Começa como true para abrir ao iniciar
   const [showTutorial, setShowTutorial] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -21,7 +23,6 @@ const App: React.FC = () => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       
-      // Validação simples de formato (opcional, para barrar antes mesmo de enviar ao Gemini)
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
       if (!validTypes.includes(selectedFile.type)) {
         setErrorMsg("Formato inválido. Envie apenas imagens (JPG/PNG) ou PDF.");
@@ -33,7 +34,7 @@ const App: React.FC = () => {
       setFile(selectedFile);
       const url = URL.createObjectURL(selectedFile);
       setPreviewUrl(url);
-      setErrorMsg(null); // Limpa o erro ao selecionar um novo arquivo válido
+      setErrorMsg(null); 
     }
   };
 
@@ -52,7 +53,6 @@ const App: React.FC = () => {
       const base64Data = await fileToGenerativePart(file);
       const result = await analyzeRegistration(base64Data, file.type);
       
-      // Validação de CPF ou dados inválidos retornados pela IA (ajuste conforme seu geminiService)
       if (!result || !result.cpf || result.cpf.includes("não encontrado")) {
          throw new Error("CPF ou dados da inscrição não encontrados na imagem.");
       }
@@ -116,6 +116,7 @@ const App: React.FC = () => {
     setPreviewUrl(null);
     setAnalysisResult(null);
     setErrorMsg(null);
+    setShowInitialModal(true); // Mostra a pergunta inicial de novo ao resetar
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -186,7 +187,6 @@ const App: React.FC = () => {
                   )}
                 </div>
 
-                {/* Área de Erro + Botão de Tutorial: Só aparece se houver erro */}
                 {errorMsg && (
                   <div className="flex flex-col items-center gap-3 animate-fade-in mt-2">
                     <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-sm text-center">
@@ -273,67 +273,118 @@ const App: React.FC = () => {
 
       </div>
 
-      {/* Modal do Tutorial Passo a Passo */}
+      {/* --- MODAL INICIAL --- */}
+      {showInitialModal && step === 'form' && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl w-full max-w-[400px] p-6 text-center animate-pop-in shadow-2xl relative overflow-hidden">
+            {/* Decoração visual no topo */}
+            <div className="absolute top-0 left-0 w-full h-2 bg-primary-red"></div>
+            
+            <div className="w-16 h-16 bg-red-50 text-primary-red rounded-full flex items-center justify-center mx-auto mb-5 mt-2 border border-red-100">
+              <i className="fas fa-file-invoice text-2xl"></i>
+            </div>
+            
+            <h3 className="font-black text-2xl text-gray-800 mb-3 tracking-tight">Você já tem o arquivo?</h3>
+            
+            <p className="text-gray-600 mb-8 text-sm leading-relaxed px-2">
+              Para validar sua inscrição, precisamos que você envie o <strong className="text-gray-800">PDF ou um Print/Foto</strong> do seu comprovante do Encceja.
+            </p>
+            
+            <div className="space-y-3">
+              <button 
+                onClick={() => setShowInitialModal(false)}
+                className="w-full bg-primary-red text-white py-4 rounded-xl font-bold hover:bg-dark-red transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 text-base"
+              >
+                Sim, já tenho para enviar
+              </button>
+              
+              <button 
+                onClick={() => {
+                  setShowInitialModal(false);
+                  setShowTutorial(true);
+                }}
+                className="w-full bg-white text-gray-700 border-2 border-gray-200 py-3.5 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-all text-sm"
+              >
+                Não sei baixar, ver passo a passo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- MODAL DO TUTORIAL PASSO A PASSO --- */}
       {showTutorial && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-[480px] max-h-[90vh] flex flex-col overflow-hidden animate-fade-in">
+        <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl w-full max-w-[480px] max-h-[90vh] flex flex-col overflow-hidden animate-pop-in shadow-2xl">
             {/* Header do Modal */}
             <div className="p-4 border-b flex justify-between items-center bg-gray-50">
               <h3 className="font-bold text-lg text-gray-800">Como baixar o comprovante</h3>
               <button 
                 onClick={() => setShowTutorial(false)} 
-                className="text-gray-400 hover:text-red-500 text-3xl font-bold leading-none transition-colors"
+                className="text-gray-400 hover:text-red-500 text-3xl font-bold leading-none transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50"
               >
                 &times;
               </button>
             </div>
             
             {/* Conteúdo com Scroll */}
-            <div className="p-5 overflow-y-auto space-y-8">
+            <div className="p-5 overflow-y-auto space-y-8 bg-white">
               <div>
-                <p className="font-bold text-gray-800 mb-2">Passo 1:</p>
-                <p className="text-sm text-gray-600 mb-3">Acesse o portal do INEP pelo Google.</p>
-                <img src="/1.png" alt="Passo 1" className="w-full rounded-lg border shadow-sm" />
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 1</span>
+                </div>
+                <p className="text-sm text-gray-700 mb-3 font-medium">Acesse o portal do INEP pelo Google.</p>
+                <img src="/1.png" alt="Passo 1" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
               
               <div>
-                <p className="font-bold text-gray-800 mb-2">Passo 2:</p>
-                <p className="text-sm text-gray-600 mb-3">Clique na opção <strong>"Página do Participante"</strong>.</p>
-                <img src="/2.png" alt="Passo 2" className="w-full rounded-lg border shadow-sm" />
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 2</span>
+                </div>
+                <p className="text-sm text-gray-700 mb-3 font-medium">Clique na opção <strong>"Página do Participante"</strong>.</p>
+                <img src="/2.png" alt="Passo 2" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
               
               <div>
-                <p className="font-bold text-gray-800 mb-2">Passo 3:</p>
-                <p className="text-sm text-gray-600 mb-3">Faça login na sua conta <strong>gov.br</strong> usando seu CPF e senha.</p>
-                <img src="/3.jpg" alt="Passo 3" className="w-full rounded-lg border shadow-sm" />
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 3</span>
+                </div>
+                <p className="text-sm text-gray-700 mb-3 font-medium">Faça login na sua conta <strong>gov.br</strong> usando seu CPF e senha.</p>
+                <img src="/3.jpg" alt="Passo 3" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
               
               <div>
-                <p className="font-bold text-gray-800 mb-2">Passo 4:</p>
-                <p className="text-sm text-gray-600 mb-3">No menu lateral esquerdo, selecione a edição correspondente do Encceja.</p>
-                <img src="/4.png" alt="Passo 4" className="w-full rounded-lg border shadow-sm" />
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 4</span>
+                </div>
+                <p className="text-sm text-gray-700 mb-3 font-medium">No menu lateral esquerdo, selecione a edição correspondente do Encceja.</p>
+                <img src="/4.png" alt="Passo 4" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
 
               <div>
-                <p className="font-bold text-gray-800 mb-2">Passo 5:</p>
-                <p className="text-sm text-gray-600 mb-3">Role até o final da página e clique no botão <strong>"Imprimir"</strong>.</p>
-                <img src="/5.png" alt="Passo 5" className="w-full rounded-lg border shadow-sm" />
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 5</span>
+                </div>
+                <p className="text-sm text-gray-700 mb-3 font-medium">Role até o final da página e clique no botão <strong>"Imprimir"</strong>.</p>
+                <img src="/5.png" alt="Passo 5" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
 
               <div>
-                <p className="font-bold text-gray-800 mb-2">Passo 6:</p>
-                <p className="text-sm text-gray-600 mb-3">Na tela de impressão, altere o destino para <strong>"Salvar como PDF"</strong> e clique em Salvar.</p>
-                <img src="/6.png" alt="Passo 6" className="w-full rounded-lg border shadow-sm" />
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 6</span>
+                </div>
+                <p className="text-sm text-gray-700 mb-3 font-medium">Na tela de impressão, altere o destino para <strong>"Salvar como PDF"</strong> e clique em Salvar.</p>
+                <img src="/6.png" alt="Passo 6" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
             </div>
 
             {/* Footer do Modal */}
-            <div className="p-4 border-t bg-gray-50">
+            <div className="p-4 border-t border-gray-100 bg-gray-50">
               <button 
                 onClick={() => setShowTutorial(false)} 
-                className="w-full bg-primary-red text-white py-3 rounded-xl font-bold hover:bg-dark-red transition-colors"
+                className="w-full bg-primary-red text-white py-3.5 rounded-xl font-bold hover:bg-dark-red transition-all shadow-md hover:-translate-y-0.5"
               >
-                Entendi, tentar novamente
+                Entendi, voltar para envio
               </button>
             </div>
           </div>
