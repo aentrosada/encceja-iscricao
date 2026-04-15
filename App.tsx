@@ -294,7 +294,7 @@ const App: React.FC = () => {
             <h3 className="font-black text-2xl text-gray-800 mb-3 tracking-tight">Você já tem o arquivo?</h3>
             
             <p className="text-gray-600 mb-8 text-sm leading-relaxed px-2">
-              Para validar sua inscrição, precisamos que você envie o <strong className="text-gray-800">PDF ou um Print/Foto</strong> do seu comprovante do Encceja.
+              Para validar sua inscrição, precisamos que você envie o <strong className="text-gray-800">PDF</strong> do seu comprovante do Encceja.
             </p>
             
             <div className="space-y-3">
