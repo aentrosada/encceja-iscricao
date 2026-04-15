@@ -4,6 +4,14 @@ import { LoadingOverlay } from './components/LoadingOverlay';
 import { ReviewScreen } from './components/ReviewScreen';
 import { AppStep, RegistrationData } from './types';
 
+// IMPORTAÇÃO DAS IMAGENS (Já que estão na mesma pasta do App.tsx)
+import img1 from './1.png';
+import img2 from './2.png';
+import img3 from './3.png';
+import img4 from './4.png';
+import img5 from './5.png';
+import img6 from './6.png';
+
 const App: React.FC = () => {
   const [step, setStep] = useState<AppStep>('form');
   const [file, setFile] = useState<File | null>(null);
@@ -14,7 +22,7 @@ const App: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   
   // Controle dos modais
-  const [showInitialModal, setShowInitialModal] = useState(true); // Começa como true para abrir ao iniciar
+  const [showInitialModal, setShowInitialModal] = useState(true);
   const [showTutorial, setShowTutorial] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -116,7 +124,7 @@ const App: React.FC = () => {
     setPreviewUrl(null);
     setAnalysisResult(null);
     setErrorMsg(null);
-    setShowInitialModal(true); // Mostra a pergunta inicial de novo ao resetar
+    setShowInitialModal(true); 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -277,7 +285,6 @@ const App: React.FC = () => {
       {showInitialModal && step === 'form' && (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl w-full max-w-[400px] p-6 text-center animate-pop-in shadow-2xl relative overflow-hidden">
-            {/* Decoração visual no topo */}
             <div className="absolute top-0 left-0 w-full h-2 bg-primary-red"></div>
             
             <div className="w-16 h-16 bg-red-50 text-primary-red rounded-full flex items-center justify-center mx-auto mb-5 mt-2 border border-red-100">
@@ -316,7 +323,6 @@ const App: React.FC = () => {
       {showTutorial && (
         <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl w-full max-w-[480px] max-h-[90vh] flex flex-col overflow-hidden animate-pop-in shadow-2xl">
-            {/* Header do Modal */}
             <div className="p-4 border-b flex justify-between items-center bg-gray-50">
               <h3 className="font-bold text-lg text-gray-800">Como baixar o comprovante</h3>
               <button 
@@ -327,14 +333,13 @@ const App: React.FC = () => {
               </button>
             </div>
             
-            {/* Conteúdo com Scroll */}
             <div className="p-5 overflow-y-auto space-y-8 bg-white">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 1</span>
                 </div>
                 <p className="text-sm text-gray-700 mb-3 font-medium">Acesse o portal do INEP pelo Google.</p>
-                <img src="/1.png" alt="Passo 1" className="w-full rounded-lg border border-gray-200 shadow-sm" />
+                <img src={img1} alt="Passo 1" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
               
               <div>
@@ -342,7 +347,7 @@ const App: React.FC = () => {
                   <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 2</span>
                 </div>
                 <p className="text-sm text-gray-700 mb-3 font-medium">Clique na opção <strong>"Página do Participante"</strong>.</p>
-                <img src="/2.png" alt="Passo 2" className="w-full rounded-lg border border-gray-200 shadow-sm" />
+                <img src={img2} alt="Passo 2" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
               
               <div>
@@ -350,7 +355,7 @@ const App: React.FC = () => {
                   <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 3</span>
                 </div>
                 <p className="text-sm text-gray-700 mb-3 font-medium">Faça login na sua conta <strong>gov.br</strong> usando seu CPF e senha.</p>
-                <img src="/3.jpg" alt="Passo 3" className="w-full rounded-lg border border-gray-200 shadow-sm" />
+                <img src={img3} alt="Passo 3" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
               
               <div>
@@ -358,7 +363,7 @@ const App: React.FC = () => {
                   <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 4</span>
                 </div>
                 <p className="text-sm text-gray-700 mb-3 font-medium">No menu lateral esquerdo, selecione a edição correspondente do Encceja.</p>
-                <img src="/4.png" alt="Passo 4" className="w-full rounded-lg border border-gray-200 shadow-sm" />
+                <img src={img4} alt="Passo 4" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
 
               <div>
@@ -366,7 +371,7 @@ const App: React.FC = () => {
                   <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 5</span>
                 </div>
                 <p className="text-sm text-gray-700 mb-3 font-medium">Role até o final da página e clique no botão <strong>"Imprimir"</strong>.</p>
-                <img src="/5.png" alt="Passo 5" className="w-full rounded-lg border border-gray-200 shadow-sm" />
+                <img src={img5} alt="Passo 5" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
 
               <div>
@@ -374,11 +379,10 @@ const App: React.FC = () => {
                   <span className="bg-primary-red text-white text-xs font-bold px-2 py-1 rounded-md">Passo 6</span>
                 </div>
                 <p className="text-sm text-gray-700 mb-3 font-medium">Na tela de impressão, altere o destino para <strong>"Salvar como PDF"</strong> e clique em Salvar.</p>
-                <img src="/6.png" alt="Passo 6" className="w-full rounded-lg border border-gray-200 shadow-sm" />
+                <img src={img6} alt="Passo 6" className="w-full rounded-lg border border-gray-200 shadow-sm" />
               </div>
             </div>
 
-            {/* Footer do Modal */}
             <div className="p-4 border-t border-gray-100 bg-gray-50">
               <button 
                 onClick={() => setShowTutorial(false)} 
