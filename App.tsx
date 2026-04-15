@@ -161,7 +161,7 @@ const App: React.FC = () => {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label className="block font-bold mb-2 text-gray-800 text-sm">COMPROVANTE DE INSCRIÇÃO (FOTO OU PDF):</label>
+                  <label className="block font-bold mb-2 text-gray-800 text-sm">COMPROVANTE DE INSCRIÇÃO EM PDF:</label>
                   <label htmlFor="file-input" className="block border-3 border-dashed border-primary-red bg-red-50 rounded-xl p-6 cursor-pointer hover:bg-red-100 hover:scale-[1.02] transition-all duration-300 text-center relative group">
                     <i className="fas fa-file-upload text-4xl text-primary-red mb-3 group-hover:scale-110 transition-transform"></i>
                     <div className="text-primary-red font-bold text-lg">ENVIAR INSCRIÇÃO</div>
