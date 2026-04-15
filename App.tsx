@@ -12,16 +12,28 @@ const App: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
+      
+      // Validação simples de formato (opcional, para barrar antes mesmo de enviar ao Gemini)
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+      if (!validTypes.includes(selectedFile.type)) {
+        setErrorMsg("Formato inválido. Envie apenas imagens (JPG/PNG) ou PDF.");
+        setFile(null);
+        setPreviewUrl(null);
+        return;
+      }
+
       setFile(selectedFile);
       const url = URL.createObjectURL(selectedFile);
       setPreviewUrl(url);
-      setErrorMsg(null);
+      setErrorMsg(null); // Limpa o erro ao selecionar um novo arquivo válido
     }
   };
 
@@ -31,7 +43,7 @@ const App: React.FC = () => {
       setErrorMsg("Por favor, anexe o comprovante de inscrição.");
       return;
     }
-    if (isFormSubmitting) return; // evita múltiplos cliques rápidos
+    if (isFormSubmitting) return;
     setIsFormSubmitting(true);
     setStep('analyzing');
     setErrorMsg(null);
@@ -39,11 +51,17 @@ const App: React.FC = () => {
     try {
       const base64Data = await fileToGenerativePart(file);
       const result = await analyzeRegistration(base64Data, file.type);
+      
+      // Validação de CPF ou dados inválidos retornados pela IA (ajuste conforme seu geminiService)
+      if (!result || !result.cpf || result.cpf.includes("não encontrado")) {
+         throw new Error("CPF ou dados da inscrição não encontrados na imagem.");
+      }
+
       setAnalysisResult(result);
       setStep('review');
     } catch (error) {
       console.error(error);
-      setErrorMsg("Ocorreu um erro ao analisar o arquivo. Tente novamente.");
+      setErrorMsg("Não conseguimos ler seu comprovante ou o arquivo está incorreto. Tente novamente.");
       setStep('form');
     } finally {
       setIsFormSubmitting(false);
@@ -52,7 +70,7 @@ const App: React.FC = () => {
 
   const handleConfirm = async () => {
     if (!analysisResult) return;
-    if (isSending) return; // já enviando
+    if (isSending) return;
     setIsSending(true);
 
     const payload = {
@@ -72,7 +90,6 @@ const App: React.FC = () => {
     console.log("Enviando dados para planilha:", payload);
 
     try {
-      // URL do Google Script fornecida
       const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxPcX26lDdJ1pRPp6N--LYL5_gHHh_RQ3r3xs9gdREjLYdZrXCC1ePzpPzPG1Fy7gd9/exec";
       
       await fetch(WEBHOOK_URL, {
@@ -145,18 +162,18 @@ const App: React.FC = () => {
                     ref={fileInputRef}
                     type="file"
                     id="file-input"
-                    accept="image/*,application/pdf"
+                    accept="image/jpeg,image/png,image/jpg,application/pdf"
                     onChange={handleFileChange}
                     className="hidden"
                   />
                   
-                  {previewUrl && (
+                  {previewUrl && !errorMsg && (
                     <div className="mt-4 text-center animate-fade-in">
                       <p className="mb-2 text-xs text-gray-500">Arquivo selecionado:</p>
                       {file?.type === 'application/pdf' ? (
                         <div className="flex flex-col items-center justify-center p-4 border border-gray-200 rounded-lg bg-gray-50">
                             <i className="fas fa-file-pdf text-4xl text-red-500 mb-2"></i>
-                            <span className="text-sm font-medium text-gray-700">{file.name}</span>
+                            <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]">{file.name}</span>
                         </div>
                       ) : (
                         <img 
@@ -169,9 +186,21 @@ const App: React.FC = () => {
                   )}
                 </div>
 
+                {/* Área de Erro + Botão de Tutorial: Só aparece se houver erro */}
                 {errorMsg && (
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-sm text-center">
-                    {errorMsg}
+                  <div className="flex flex-col items-center gap-3 animate-fade-in mt-2">
+                    <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-sm text-center">
+                      <i className="fas fa-exclamation-circle mr-2"></i>
+                      {errorMsg}
+                    </div>
+                    
+                    <button 
+                      type="button" 
+                      onClick={() => setShowTutorial(true)}
+                      className="text-primary-red underline font-semibold text-sm hover:text-dark-red transition-colors mt-1"
+                    >
+                      <i className="fas fa-question-circle mr-1"></i> Veja o passo a passo de como baixar
+                    </button>
                   </div>
                 )}
 
@@ -243,6 +272,74 @@ const App: React.FC = () => {
         </div>
 
       </div>
+
+      {/* Modal do Tutorial Passo a Passo */}
+      {showTutorial && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-[480px] max-h-[90vh] flex flex-col overflow-hidden animate-fade-in">
+            {/* Header do Modal */}
+            <div className="p-4 border-b flex justify-between items-center bg-gray-50">
+              <h3 className="font-bold text-lg text-gray-800">Como baixar o comprovante</h3>
+              <button 
+                onClick={() => setShowTutorial(false)} 
+                className="text-gray-400 hover:text-red-500 text-3xl font-bold leading-none transition-colors"
+              >
+                &times;
+              </button>
+            </div>
+            
+            {/* Conteúdo com Scroll */}
+            <div className="p-5 overflow-y-auto space-y-8">
+              <div>
+                <p className="font-bold text-gray-800 mb-2">Passo 1:</p>
+                <p className="text-sm text-gray-600 mb-3">Acesse o portal do INEP pelo Google.</p>
+                <img src="/1.png" alt="Passo 1" className="w-full rounded-lg border shadow-sm" />
+              </div>
+              
+              <div>
+                <p className="font-bold text-gray-800 mb-2">Passo 2:</p>
+                <p className="text-sm text-gray-600 mb-3">Clique na opção <strong>"Página do Participante"</strong>.</p>
+                <img src="/2.png" alt="Passo 2" className="w-full rounded-lg border shadow-sm" />
+              </div>
+              
+              <div>
+                <p className="font-bold text-gray-800 mb-2">Passo 3:</p>
+                <p className="text-sm text-gray-600 mb-3">Faça login na sua conta <strong>gov.br</strong> usando seu CPF e senha.</p>
+                <img src="/3.jpg" alt="Passo 3" className="w-full rounded-lg border shadow-sm" />
+              </div>
+              
+              <div>
+                <p className="font-bold text-gray-800 mb-2">Passo 4:</p>
+                <p className="text-sm text-gray-600 mb-3">No menu lateral esquerdo, selecione a edição correspondente do Encceja.</p>
+                <img src="/4.png" alt="Passo 4" className="w-full rounded-lg border shadow-sm" />
+              </div>
+
+              <div>
+                <p className="font-bold text-gray-800 mb-2">Passo 5:</p>
+                <p className="text-sm text-gray-600 mb-3">Role até o final da página e clique no botão <strong>"Imprimir"</strong>.</p>
+                <img src="/5.png" alt="Passo 5" className="w-full rounded-lg border shadow-sm" />
+              </div>
+
+              <div>
+                <p className="font-bold text-gray-800 mb-2">Passo 6:</p>
+                <p className="text-sm text-gray-600 mb-3">Na tela de impressão, altere o destino para <strong>"Salvar como PDF"</strong> e clique em Salvar.</p>
+                <img src="/6.png" alt="Passo 6" className="w-full rounded-lg border shadow-sm" />
+              </div>
+            </div>
+
+            {/* Footer do Modal */}
+            <div className="p-4 border-t bg-gray-50">
+              <button 
+                onClick={() => setShowTutorial(false)} 
+                className="w-full bg-primary-red text-white py-3 rounded-xl font-bold hover:bg-dark-red transition-colors"
+              >
+                Entendi, tentar novamente
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
