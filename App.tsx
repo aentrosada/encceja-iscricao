@@ -256,7 +256,7 @@ const App: React.FC = () => {
               </p>
               
               <a 
-                href="https://bit.ly/Whatsdereações" 
+                href="https://wa.me/554330326344" 
                 target="_blank" 
                 rel="noreferrer"
                 className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-4 rounded-full transition-transform hover:scale-[1.02] uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 text-lg no-underline mb-6"
